@@ -1,5 +1,7 @@
 # VariationalAutoencoder
 A pytorch variational autoencoder implementation (assignment for Neural Networks & Deep Learning AUTh 9th semester course).
+![vaesimple_bernoulli_interpolation](https://github.com/Thodoris1999/VariationalAutoencoder/blob/main/results/vaesimple_bernoulli_interpolation.gif)
+![vaesimple_gaussian_interpolation](https://github.com/Thodoris1999/VariationalAutoencoder/blob/main/results/vaesimple_gaussian_interpolation.gif)
 ## Usage
 Create an environment and install dependencies \
 `
