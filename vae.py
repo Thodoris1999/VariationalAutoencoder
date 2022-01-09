@@ -11,6 +11,7 @@ class VAE(nn.Module):
     def __init__(self, latent_size, bernoulli_input):
         super(VAE, self).__init__()
         self.latent_size = latent_size
+        self.bernoulli_input = bernoulli_input
         if bernoulli_input:
             print("Constructing VAE with bernoulli reconstruction loss")
             self.recon_loss = F.binary_cross_entropy_with_logits
@@ -57,20 +58,28 @@ class VAE(nn.Module):
         return mu, logs2
 
 
+    def to_numpy(self, img):
+        binarize = self.bernoulli_input
+        if binarize:
+            return (img > 0.5).to(img.dtype).reshape(img.size(0), 28, 28).cpu().detach().numpy()
+        else:
+            return img.reshape(img.size(0), 28, 28).cpu().detach().numpy()
+
+
     def generate(self, mu, logs2):
         with torch.no_grad():
             s = torch.exp(0.5*logs2)
             eps = torch.randn_like(mu)
             z = mu+s*eps
             dec = self.decoder(z)
-            return dec.reshape(dec.size(0), 28, 28).cpu().detach().numpy()
+            return self.to_numpy(dec)
 
 
     def generate_random(self, n):
         with torch.no_grad():
             z = torch.randn((n, self.latent_size), device=device)
             dec = self.decoder(z)
-            return dec.reshape(dec.size(0), 28, 28).cpu().detach().numpy()
+            return self.to_numpy(dec)
 
 
     # n number of random latent vectors, n_interpolated number of vectors interpolated between each random vector
@@ -83,11 +92,10 @@ class VAE(nn.Module):
                 k=0
                 for l in range(n_interpolated):
                     zs[i*n_interpolated+l] = (1-k)*z[i]+k*z[i+1]
-                    print(k)
                     k += 1.0/n_interpolated
 
             dec = self.decoder(zs)
-            return dec.reshape(dec.size(0), 28, 28).cpu().detach().numpy()
+            return self.to_numpy(dec)
 
 
     def forward(self, x):
